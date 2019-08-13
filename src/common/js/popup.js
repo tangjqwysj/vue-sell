@@ -3,7 +3,7 @@ const EVENT_HIDE = 'hide'
 export default {
   data() {
     return {
-      visible: true
+      visible: false
     }
   },
   methods: {

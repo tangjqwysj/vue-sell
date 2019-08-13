@@ -30,7 +30,6 @@
     <div class="background">
       <img :src="seller.avatar" width="100%" height="100%">
     </div>
-    <header-detail :seller="seller"></header-detail>
   </div>
 </template>
 
@@ -47,14 +46,14 @@ export default {
   },
   methods: {
     showDetail() {
-      // this.headerDetailComp =
-      //   this.headerDetailComp ||
-      //   this.$createHeaderDetail({
-      //     $props: {
-      //       seller: this.seller
-      //     }
-      //   })
-      // this.headerDetailComp.show()
+      this.headerDetailComp =
+        this.headerDetailComp ||
+        this.$createHeaderDetail({
+          $props: {
+            seller: this.seller
+          }
+        })
+      this.headerDetailComp.show()
     }
   },
   components: {

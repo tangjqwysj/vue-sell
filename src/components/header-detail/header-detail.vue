@@ -66,6 +66,7 @@ export default {
   width: 100%
   height: 100%
   opacity: 1
+  backdrop-filter: blur(10px)
   color: $color-white
   background: $color-background-s
   &.fade-enter-active, &.fade-leave-active
@@ -124,9 +125,8 @@ export default {
           line-height: 24px
   .detail-close
     position: absolute
-    bottom:32px;
-    left:50%;
-    transform:translateX(-50%)
+    bottom: 32px
+    left: 50%
+    transform: translateX(-50%)
     font-size: $fontsize-large-xxxx
-    clear: both
 </style>

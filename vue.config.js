@@ -24,7 +24,7 @@ module.exports = {
     }
   },
   devServer: {
-    port: 8081,
+    port: 8083,
     before(app) {
       app.get('/api/seller', function(req, res) {
         const id = req.query.id
