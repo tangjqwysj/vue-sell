@@ -16,7 +16,8 @@
             </template>
           </cube-scroll-nav-bar>
         </template>
-        <cube-scroll-nav-panel v-for="good in goods" :key="good.name" :label='good.name' :title='good.name'>
+        <cube-scroll-nav-panel v-for="good in goods" :key="good.name" :label='good.name'
+                               :title='good.name'>
           <ul>
             <li class="food-item" v-for="food in good.foods" :key="food.name">
               <div class="icon">
@@ -33,8 +34,8 @@
                   <span class="now">￥{{food.price}}</span>
                   <span class="old" v-show="food.oldPrice">￥{{food.oldPrice}}</span>
                 </div>
-                <div class="cart-control-w">
-                  <cart-control></cart-control>
+                <div class="cart-control-wrapper">
+                  <cart-control :food='food' @add='onAdd'></cart-control>
                 </div>
               </div>
             </li>
@@ -43,7 +44,8 @@
       </cube-scroll-nav>
     </div>
     <div class="shop-cart-wrapper">
-      <shop-cart></shop-cart>
+      <shop-cart :delivery-price='seller.deliveryPrice' :min-price='seller.minPrice'
+                 :select-foods='selectFoods' ref="shopCart"></shop-cart>
     </div>
   </div>
 </template>
@@ -79,7 +81,7 @@ export default {
       let ret = []
       this.goods.forEach((v, i) => {
         let { name, type, foods } = v
-        let count
+        let count = 0
         foods.forEach((v, i) => {
           count += v.count || 0
         })
@@ -87,6 +89,17 @@ export default {
           name,
           type,
           count
+        })
+      })
+      return ret
+    },
+    selectFoods() {
+      let ret = []
+      this.goods.forEach((v, i) => {
+        v.foods.forEach((vi, ii) => {
+          if (vi.count) {
+            ret.push(vi)
+          }
         })
       })
       return ret
@@ -100,6 +113,9 @@ export default {
           this.goods = goods
         })
       }
+    },
+    onAdd(el) {
+      this.$refs.shopCart.drop(el)
     }
   },
   components: {
@@ -114,25 +130,105 @@ export default {
 <style lang="stylus" scoped>
 @import '../../common/stylus/variable.styl'
 @import '../../common/stylus/mixin.styl'
+
 .goods
-  position:relative
-  height:100%
-  text-align:left;
+  position: relative
+  height: 100%
+  text-align: left
   .scroll-nav-wrapper
-    position:absolute
-    top:0;
-    left:0;
-    width:100%;
-    bottom:48px;
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+    bottom: 48px
     .cube-scroll-nav-bar
-      width:80px;
-      white-space:normal;
+      width: 80px
+      white-space: normal
+      .text
+        flex: 1
+        position: relative
+        .support-ico
+          margin-right: 4px
+          display: inline-block
+          vertical-align: top
+        .num
+          position: absolute
+          top: -12px
+          right: -8px
+    .food-item
+      display: flex
+      margin: 18px
+      padding-bottom: 18px
+      position: relative
+      &:last-child
+        border-none()
+        margin-bottom: 0
+      .icon
+        margin-right: 10px
+        flex: 0 0 57px
+        img
+          height: auto
+      .content
+        flex: 1
+        .name
+          font-size: $fontsize-medium
+          color: $color-dark-grey
+          margin: 2px 0 8px 0
+          height: 14px
+          line-height: 14px
+        .desc, .extra
+          font-size: $fontsize-small-s
+          color: $color-light-grey
+          line-height: 10px
+        .desc
+          line-height: 12px
+          margin-bottom: 8px
+        .extra
+          .count
+            margin-right: 12px
+        .price
+          font-weight: 700
+          line-height: 24px
+          height: 24px
+          .now
+            margin-right: 8px
+            font-size: $fontsize-medium
+            color: $color-red
+          .old
+            font-size: $fontsize-small-s
+            color: $color-light-grey
+            text-decoration: line-through
+        .cart-control-wrapper
+          position: absolute
+          right: 0
+          bottom: 12px
+  .shop-cart-wrapper
+    position: absolute
+    left: 0
+    bottom: 0
+    height: 48px
+    width: 100%
+    z-index: 50
+
 >>> .cube-scroll-nav-bar-item
-      padding:0 10px;
-      height:54px;
-      display:flex;
-      align-items:center;
-      line-height:14px;
-      font-size:$fontsize-small;
-      background:$color-background-ssss
+  padding: 0 10px
+  height: 56px
+  display: flex
+  align-items: center
+  line-height: 14px
+  font-size: $fontsize-small
+  background: $color-background-ssss
+
+>>> .cube-scroll-nav-bar-item_active
+  background: $color-white
+  color: $color-dark-grey
+
+>>> .cube-scroll-nav-panel-title
+  font-size: $fontsize-small
+  color: $color-grey
+  background: $color-background-ssss
+  height: 26px
+  line-height: 26px
+  padding-left: 14px
+  border-left: 2px solid $color-col-line
 </style>

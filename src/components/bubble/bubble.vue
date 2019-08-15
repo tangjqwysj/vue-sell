@@ -20,4 +20,13 @@ export default {
 
 .bubble
   display: inline-block
+  background: $color-red
+  font-size: $fontsize-small-s
+  font-weight: 700
+  text-align: center
+  color: $color-white
+  padding: 0 5px
+  height: 16px
+  line-height: 16px
+  border-radius: 16px
 </style>
