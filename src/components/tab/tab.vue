@@ -39,6 +39,7 @@ export default {
     }
   },
   computed: {
+    //!get是对响应式数据的包装，set应该就是怎么获取要包装的响应式数据
     selectedLabel: {
       get() {
         return this.tabs[this.index].label
@@ -78,4 +79,6 @@ export default {
     padding: 10px 0
   .slide-wrapper
     flex: 1
+    overflow: hidden
+    //!这一行不可少，否则出现评论页不能滚动，tab切换后商品页购物车栏在视口看不到的布局bug
 </style>

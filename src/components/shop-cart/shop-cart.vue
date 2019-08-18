@@ -13,7 +13,7 @@
         <div class="price" :class="{'highlight':totalCount>0}">￥{{totalPrice}}</div>
         <div class="desc">另需配送费￥{{deliveryPrice}}元</div>
       </div>
-      <div class="content-right">
+      <div class="content-right" @click="pay">
         <div class="pay" :class="payCls">
           {{payDesc}}
         </div>
@@ -36,7 +36,7 @@ import Bubble from '../bubble/bubble.vue'
 
 const BALL_LENGTH = 10
 const BALL_LEFT = 32
-const Ball_BOTTOM = 22
+const BAll_BOTTOM = 22
 
 function createBalls() {
   let balls = []
@@ -60,11 +60,20 @@ export default {
     minPrice: {
       type: Number,
       default: 0
+    },
+    fold: {
+      type: Boolean,
+      default: true
+    },
+    sticky: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
     return {
-      balls: createBalls()
+      balls: createBalls(),
+      listFold: this.fold
     }
   },
   created() {
@@ -99,8 +108,76 @@ export default {
     }
   },
   methods: {
-    toggleList(){
-      
+    pay(e) {
+      if (this.totalPrice >= this.minPrice) {
+        this.$createDialog({
+          $props: {
+            title: '支付',
+            content: `你需要支付${this.totalPrice}元`
+          },
+          $events: {
+            confirm: () => {}
+          }
+        }).show()
+        e.stopPropagation()
+      }
+    },
+    toggleList() {
+      if (this.listFold) {
+        if (this.totalCount <= 0) {
+          return
+        }
+        this.listFold = false
+        this._showShopCartList()
+        this._showShopCartSticky()
+      } else {
+        this.listFold = true
+        this._hideShopCartList()
+      }
+      //!内层shopCart的this.listFold只初始化一次，为了使listFold值跟着传进来的fold做改变，所以要watch fold值变化
+      console.log('sticky:' + this.sticky, this.listFold)
+    },
+    _showShopCartList() {
+      this.shopCartListComp =
+        this.shopCartListComp ||
+        this.$createShopCartList({
+          $props: {
+            selectFoods: 'selectFoods'
+          },
+          $events: {
+            hide: () => {
+              this.listFold = true
+            },
+            leave: () => {
+              this._hideShopCartSticky()
+            },
+            add: el => {
+              this.shopCartStickyComp.drop(el)
+            }
+          }
+        })
+      this.shopCartListComp.show()
+    },
+    _showShopCartSticky() {
+      this.shopCartStickyComp =
+        this.shopCartStickyComp ||
+        this.$createShopCartSticky({
+          $props: {
+            deliveryPrice: 'deliveryPrice',
+            minPrice: 'minPrice',
+            selectFoods: 'selectFoods',
+            fold: 'listFold',
+            list: this.shopCartListComp
+          }
+        })
+      this.shopCartStickyComp.show()
+    },
+    _hideShopCartSticky() {
+      this.shopCartStickyComp.hide()
+    },
+    _hideShopCartList() {
+      const list = this.sticky ? this.$parent.list : this.shopCartListComp
+      list.hide && list.hide()
     },
     drop(el) {
       for (let i = 0; i < BALL_LENGTH; i++) {
@@ -114,13 +191,13 @@ export default {
     },
     beforeDrop(el) {
       const ball = this.dropBalls[this.dropBalls.length - 1]
-      const delta_x = ball.el.getBoundingClientRect().left - BALL_LEFT
-      const delta_y = -(window.innerHeight - ball.el.getBoundingClientRect().top - Ball_BOTTOM)
-      el.style.transform = el.style.webkitTransform = `translate3d(${delta_x}px,0,0)`
-      el.querySelectorAll('.inner')[0].style.transform = el.querySelectorAll('.inner')[0].style.webkitTransform = `translate3d(0,${delta_y}px,0)`
+      const deltaX = ball.el.getBoundingClientRect().left - BALL_LEFT
+      const deltaY = -(window.innerHeight - ball.el.getBoundingClientRect().top - BAll_BOTTOM)
+      el.style.transform = el.style.webkitTransform = `translate3d(${deltaX}px,0,0)`
+      el.querySelectorAll('.inner')[0].style.transform = el.querySelectorAll('.inner')[0].style.webkitTransform = `translate3d(0,${deltaY}px,0)`
     },
     dropping(el, done) {
-      this._reflow=document.body.offsetParent
+      this._reflow = document.body.offsetParent
       el.style.transform = el.style.webkitTransform = `translate3d(0,0,0)`
       el.querySelectorAll('.inner')[0].style.transform = el.querySelectorAll('.inner')[0].style.webkitTransform = `translate3d(0,0,0)`
       el.addEventListener('transitionend', done)
@@ -130,6 +207,17 @@ export default {
       if (ball) {
         ball.show = false
         el.style.display = 'none'
+      }
+    }
+  },
+  watch: {
+    fold(newVal) {
+      this.listFold = newVal
+    },
+    // !如果不监听totalCount，点击购物车列表中的cartControl组件减号操作清空所有物品后，列表标题栏不隐藏
+    totalCount(newVal) {
+      if (newVal <= 0 && !this.fold) {
+        this._hideShopCartList()
       }
     }
   },
