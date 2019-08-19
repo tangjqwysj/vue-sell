@@ -7,7 +7,6 @@ const ratings = appData.ratings
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
-
 module.exports = {
   css: {
     loaderOptions: {
@@ -47,7 +46,6 @@ module.exports = {
       })
     }
   },
-  
   chainWebpack(config) {
     config.resolve.alias.set('components', resolve('src/components')).set('common', 'src/common')
   }
