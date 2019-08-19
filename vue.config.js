@@ -48,8 +48,6 @@ module.exports = {
       })
     }
   },
-
-  
   chainWebpack(config) {
     config.resolve.alias.set('components', resolve('src/components')).set('common', 'src/common')
   }
